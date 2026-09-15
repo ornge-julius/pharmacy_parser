@@ -1,7 +1,5 @@
 class PharmacyLedger
 
-
-    
     # Hash to store patient data
     # EXAMPLE
     # {
@@ -15,48 +13,51 @@ class PharmacyLedger
     #         }
     #     }
     # }
-    LEDGER = {}
     PRESCRIPTION_COST = 5
     RETURN_COST = 6
     CREATED_EVENT = 'created'.freeze
 
+    def initialize
+        @ledger = {}
+    end
+
     def process_filled(patient, drug, event)
-        if LEDGER[patient] && LEDGER[patient][:prescriptions].include?(drug)
-            LEDGER[patient][:prescriptions][drug][:filled] += 1
-            LEDGER[patient][:income] += PRESCRIPTION_COST
+        if @ledger[patient] && @ledger[patient][:prescriptions].include?(drug)
+            @ledger[patient][:prescriptions][drug][:filled] += 1
+            @ledger[patient][:income] += PRESCRIPTION_COST
         end
 
     end
 
     def process_returned(patient, drug, event)
-        if LEDGER[patient] && LEDGER[patient][:prescriptions].include?(drug) && LEDGER[patient][:prescriptions][drug][:filled] > 0
-            LEDGER[patient][:prescriptions][drug][:filled] -= 1
-            LEDGER[patient][:income] -= RETURN_COST
+        if @ledger[patient] && @ledger[patient][:prescriptions].include?(drug) && @ledger[patient][:prescriptions][drug][:filled] > 0
+            @ledger[patient][:prescriptions][drug][:filled] -= 1
+            @ledger[patient][:income] -= RETURN_COST
         end
     end
 
     def process_created(patient, drug, event)
-        unless LEDGER[patient] && LEDGER[patient][:prescriptions].include?(drug)
-            LEDGER[patient][:prescriptions][drug] = {filled: 0}
+        unless @ledger[patient] && @ledger[patient][:prescriptions].include?(drug)
+            @ledger[patient][:prescriptions][drug] = {filled: 0}
         end
     end
 
     def add_patient(patient, event)
         unless event != CREATED_EVENT
-            LEDGER[patient] = {income: 0, prescriptions: {}}
+            @ledger[patient] = {income: 0, prescriptions: {}}
         end
-    end 
+    end
 
     def patients
-        LEDGER.keys
+        @ledger.keys
     end
 
     def calculate_total_fills(patient)
-        LEDGER[patient][:prescriptions].values.map { |prescription| prescription[:filled] }.sum
+        @ledger[patient][:prescriptions].values.map { |prescription| prescription[:filled] }.sum
     end
 
     def income(patient)
-        LEDGER[patient][:income]
+        @ledger[patient][:income]
     end
 
 end
