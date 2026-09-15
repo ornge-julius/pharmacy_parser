@@ -35,11 +35,5 @@ RSpec.describe Parser do
                 expect { parser.parse_and_return(File.expand_path("../fixtures/return_with_no_fills_input.txt", __dir__)) }.to output(expected_output).to_stdout
             end
         end
-
-        #handle missing patient
-
-        #handle missing prescription
-
-        #handle
     end
 end
