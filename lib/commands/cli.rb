@@ -6,7 +6,7 @@ class CLI < Thor
   end
 
   desc "parse FILE_PATH", "Parse a pharmacy events file and print a summary"
-  def parse(file_path = "./fixtures/file.txt")
+  def parse(file_path = File.expand_path("../fixtures/file.txt", __dir__))
     parser = Parser.new
     parser.parse_and_return(file_path)
   end
