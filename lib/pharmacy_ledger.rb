@@ -17,6 +17,7 @@ class PharmacyLedger
     RETURN_COST = 6
     CREATED_EVENT = 'created'.freeze
 
+
     def initialize
         @ledger = {}
     end
@@ -37,13 +38,15 @@ class PharmacyLedger
     end
 
     def process_created(patient, drug, event)
-        unless @ledger[patient] && @ledger[patient][:prescriptions].include?(drug)
-            @ledger[patient][:prescriptions][drug] = {filled: 0}
+        unless !@ledger[patient] || @ledger[patient][:prescriptions].include?(drug)
+            @ledger[patient][:prescriptions][drug] = {filled: 0, returned: 0}
         end
     end
 
     def add_patient(patient, event)
-        unless event != CREATED_EVENT
+        # Assumption: We only want patients to show up in the ledger who have at least one created event.
+        #             The 'created' event should be the first event for a patient to be added to the ledger.
+        unless event != CREATED_EVENT || patients.include?(patient)
             @ledger[patient] = {income: 0, prescriptions: {}}
         end
     end
@@ -53,11 +56,21 @@ class PharmacyLedger
     end
 
     def calculate_total_fills(patient)
-        @ledger[patient][:prescriptions].values.map { |prescription| prescription[:filled] }.sum
+        unless !@ledger[patient]
+            @ledger[patient][:prescriptions].values.map { |prescription| prescription[:filled] }.sum
+        end
+    end
+
+    def calculate_total_returns(patient)
+        unless !@ledger[patient]
+            @ledger[patient][:prescriptions].values.map { |prescription| prescription[:returned] }.sum
+        end
     end
 
     def income(patient)
-        @ledger[patient][:income]
+        unless !@ledger[patient]
+            @ledger[patient][:income]
+        end
     end
 
 end
